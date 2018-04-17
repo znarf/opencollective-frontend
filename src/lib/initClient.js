@@ -1,4 +1,4 @@
-import { ApolloClient, createNetworkInterface } from 'react-apollo'
+import { ApolloClient, HTTPFetchNetworkInterface } from 'react-apollo'
 import fetch from 'isomorphic-fetch'
 
 let apolloClient = null
@@ -26,6 +26,27 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
   }
 })
 
+class MyNetworkInterface extends HTTPFetchNetworkInterface {
+  async fetchFromRemoteEndpoint(parameters) {
+    let start;
+    if (process && process.hrtime) {
+      start = process.hrtime();
+    }
+    const result = await super.fetchFromRemoteEndpoint(parameters);
+    if (process && process.hrtime) {
+      const end = process.hrtime(start);
+      const elapsed = end[0] + Math.round(end[1] / 1000000) / 1000;
+      if (end[0] === 0) {
+        console.log(`>>> GraphQL request in ${elapsed}s`);
+      } else {
+        console.log(`>>> Slow GraphQL request in ${elapsed}s`);
+        console.log(parameters.request);
+      }
+    }
+    return result;
+  }
+}
+
 function createClient (initialState, options = {}) {
 
   const headers = {};
@@ -33,19 +54,18 @@ function createClient (initialState, options = {}) {
     headers.authorization = `Bearer ${options.accessToken}`;
   }
 
+  const networkInterface = new MyNetworkInterface(options.uri, {
+    credentials: 'same-origin',
+    headers
+  });
+
   return new ApolloClient({
     ssrMode: !process.browser,
     dataIdFromObject: result => `${result.__typename}:${result.id || result.name || result.slug || Math.floor(Math.random()*1000000)}`,
     fragmentMatcher,
     initialState,
     shouldBatch: true, // should speed up performance
-    networkInterface: createNetworkInterface({
-      uri: options.uri,
-      opts: {
-        credentials: 'same-origin',
-        headers
-      }
-    })
+    networkInterface: networkInterface
   })
 }
 
