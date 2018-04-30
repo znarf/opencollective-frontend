@@ -370,9 +370,8 @@ class OrderForm extends React.Component {
       const client = await btClient.create({ authorization: clientToken });
       const paypalCheckout = await btPaypalCheckout.create({ client });
       const paymentOptions = {
-        flow: 'checkout',
-        amount: this.getTotalAmount(),
-        currency: 'USD',
+        flow: 'vault',
+        amount: this.getTotalAmount() / 100, /* convert amount to what PayPal accepts */
         intent: 'sale',
       };
       const renderOptions = {
@@ -402,7 +401,7 @@ class OrderForm extends React.Component {
     const { order } = this.state;
     const quantity = (order.tier.quantity || 1);
     const total = (quantity * order.tier.amount) || order.totalAmount;
-    return total / 100.0;
+    return total;
   }
 
   submitOrder = async () => {
