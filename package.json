@@ -115,6 +115,7 @@
   "scripts": {
     "start": "node dist/server",
     "dev": "babel-node server",
+    "dev-alt": "node server/alt",
     "build": "npm-run-all build:updates build:clean build:next build:server",
     "build:clean": "shx rm -rf dist .next",
     "build:langs": "npm run langs:update",
