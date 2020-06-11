@@ -29,6 +29,7 @@ export const Sections = {
   CONVERSATIONS: 'conversations',
   TRANSACTIONS: 'transactions',
   ABOUT: 'about',
+  RECURRINGCONTRIBUTIONS: 'recurringcontributions',
 };
 
 /** A list of all section names */

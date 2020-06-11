@@ -272,6 +272,8 @@
   "CollectivePage.SectionBudget.ViewAll": "浏览全部交易",
   "CollectivePage.SectionBudget.ViewAllExpenses": "View all expenses",
   "CollectivePage.SectionContributions.Empty": "{collectiveName} seems to be hibernating in a cave in the North Pole ❄️☃️!",
+  "CollectivePage.SectionRecurringContributions.Empty": "{collectiveName} doesn't seem to to have any recurring contributions yet! 😔",
+  "CollectivePage.SectionRecurringContributions.Title": "Recurring contributions",
   "CollectivePage.SectionUpdates.CreateBtn": "创建新的更新",
   "CollectivePage.SectionUpdates.Title": "What's new with {collectiveName}",
   "CollectivePage.SectionUpdates.ViewAll": "浏览全部更新",

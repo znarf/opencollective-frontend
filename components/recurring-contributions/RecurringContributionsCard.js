@@ -56,7 +56,7 @@ const RecurringContributionsCard = ({ collective, status, contribution, createNo
   const { formatMessage } = useIntl();
   const statusTag = `${status} contribution`;
   const buttonText = status === 'ACTIVE' ? formatMessage(messages.manage) : formatMessage(messages.activate);
-  const userIsLoggedInUser = props.LoggedInUser.collective.slug === props.router.query.collectiveSlug;
+  const userIsLoggedInUser = props.LoggedInUser.collective.slug === props.router.query.slug;
   // const userIsAdminOfCollectiveOrOrg
   const userIsAdmin = userIsLoggedInUser; // || userIsAdminOfCollectiveOrOrg
 

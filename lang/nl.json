@@ -272,6 +272,8 @@
   "CollectivePage.SectionBudget.ViewAll": "Bekijk alle transacties",
   "CollectivePage.SectionBudget.ViewAllExpenses": "Bekijk alle uitgaven",
   "CollectivePage.SectionContributions.Empty": "{collectiveName} lijkt een winterslaap te houden in een grot op de Noordpool ❄️☃️!",
+  "CollectivePage.SectionRecurringContributions.Empty": "{collectiveName} doesn't seem to to have any recurring contributions yet! 😔",
+  "CollectivePage.SectionRecurringContributions.Title": "Recurring contributions",
   "CollectivePage.SectionUpdates.CreateBtn": "Maak een nieuwe update",
   "CollectivePage.SectionUpdates.Title": "Wat is nieuw bij {collectiveName}",
   "CollectivePage.SectionUpdates.ViewAll": "Bekijk alle updates",

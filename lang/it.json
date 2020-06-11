@@ -272,6 +272,8 @@
   "CollectivePage.SectionBudget.ViewAll": "Vedi tutte le transazioni",
   "CollectivePage.SectionBudget.ViewAllExpenses": "Vedi tutte le spese",
   "CollectivePage.SectionContributions.Empty": "{collectiveName} sembra stia ibernando in una grotta nel Polo Nord <unk> flake:<unk> man!",
+  "CollectivePage.SectionRecurringContributions.Empty": "{collectiveName} doesn't seem to to have any recurring contributions yet! 😔",
+  "CollectivePage.SectionRecurringContributions.Title": "Recurring contributions",
   "CollectivePage.SectionUpdates.CreateBtn": "Crea un nuovo aggiornamento",
   "CollectivePage.SectionUpdates.Title": "Le novità di {collectiveName}",
   "CollectivePage.SectionUpdates.ViewAll": "Vedi tutti gli aggiornamenti",

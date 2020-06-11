@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import themeGet from '@styled-system/theme-get';
-import gql from 'graphql-tag';
 import { first, get, startCase } from 'lodash';
 import { withRouter } from 'next/router';
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
@@ -34,16 +33,23 @@ const messages = defineMessages({
 });
 
 const updateOrderMutation = gqlV2/* GraphQL */ `
-  mutation updateOrderTierOrAmount($order: OrderReferenceInput!, $amount: Int, $tier: TierReferenceInput) {
+  mutation updateOrderTierOrAmount($order: OrderReferenceInput!, $amount: AmountInput, $tier: TierReferenceInput) {
     updateOrder(order: $order, amount: $amount, tier: $tier) {
       id
+      amount {
+        value
+      }
+      tier {
+        id
+        name
+      }
     }
   }
 `;
 
-const getTiersQuery = gql`
-  query UpdateOrderPopUpQuery($collectiveSlug: String!) {
-    Collective(slug: $collectiveSlug) {
+const getTiersQuery = gqlV2/* GraphQL */ `
+  query UpdateOrderPopUpQuery($slug: String!) {
+    collective(slug: $slug) {
       id
       slug
       name
@@ -51,18 +57,20 @@ const getTiersQuery = gql`
       currency
       settings
       tiers {
-        id
-        name
-        slug
-        interval
-        currency
-        amount
-        minimumAmount
-        button
-        amountType
-        endsAt
-        type
-        presets
+        nodes {
+          id
+          name
+          interval
+          amount {
+            valueInCents
+            currency
+          }
+          minimumAmount {
+            valueInCents
+          }
+          amountType
+          presets
+        }
       }
     }
   }
@@ -84,8 +92,9 @@ const UpdateOrderPopUp = ({ setMenuState, contribution, createNotification, setS
   });
   const { data } = useQuery(getTiersQuery, {
     variables: {
-      collectiveSlug: contribution.toAccount.slug,
+      slug: contribution.toAccount.slug,
     },
+    context: API_V2_CONTEXT,
   });
 
   // Tier data wrangling
@@ -94,11 +103,11 @@ const UpdateOrderPopUp = ({ setMenuState, contribution, createNotification, setS
     if (contribution.tier === null) {
       return first(tiers);
     } else {
-      return tiers.find(option => option.title.toLowerCase() === contribution.tier.name.toLowerCase());
+      return tiers.find(option => option.id === contribution.tier.id);
     }
   };
 
-  const tiers = get(data, 'Collective.tiers', null);
+  const tiers = get(data, 'collective.tiers.nodes', null);
   const mappedTierOptions = React.useMemo(() => {
     if (!tiers) {
       return null;
@@ -120,12 +129,12 @@ const UpdateOrderPopUp = ({ setMenuState, contribution, createNotification, setS
         key: `tier-${tier.id}`,
         title: tier.name,
         flexible: tier.amountType === 'FLEXIBLE' ? true : false,
-        amount: tier.amountType === 'FLEXIBLE' ? tier.minimumAmount : tier.amount,
+        amount: tier.amountType === 'FLEXIBLE' ? tier.minimumAmount.valueInCents : tier.amount.valueInCents,
         id: tier.id,
-        currency: tier.currency,
+        currency: tier.amount.currency,
         interval: tier.interval,
         presets: tier.presets,
-        minimumAmount: tier.amountType === 'FLEXIBLE' ? tier.minimumAmount : 100,
+        minimumAmount: tier.amountType === 'FLEXIBLE' ? tier.minimumAmount.valueInCents : 100,
       }));
     tierOptions.unshift(customTierOption);
     return tierOptions;
@@ -274,9 +283,12 @@ const UpdateOrderPopUp = ({ setMenuState, contribution, createNotification, setS
               await submitUpdateOrder({
                 variables: {
                   order: { id: contribution.id },
-                  amount: selectedAmountOption.label === 'Other' ? inputAmountValue : selectedAmountOption.value,
+                  amount: {
+                    valueInCents:
+                      selectedAmountOption.label === 'Other' ? inputAmountValue : selectedAmountOption.value,
+                  },
                   tier: {
-                    legacyId: selectedTier.value ? selectedTier.value.id : selectedTier.id,
+                    id: selectedTier.value ? selectedTier.value.id : selectedTier.id,
                   },
                 },
               });

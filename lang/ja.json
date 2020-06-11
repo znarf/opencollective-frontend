@@ -272,6 +272,8 @@
   "CollectivePage.SectionBudget.ViewAll": "全ての取引を表示する",
   "CollectivePage.SectionBudget.ViewAllExpenses": "全ての経費申請を表示する",
   "CollectivePage.SectionContributions.Empty": "{collectiveName} seems to be hibernating in a cave in the North Pole ❄️☃️!",
+  "CollectivePage.SectionRecurringContributions.Empty": "{collectiveName} doesn't seem to to have any recurring contributions yet! 😔",
+  "CollectivePage.SectionRecurringContributions.Title": "Recurring contributions",
   "CollectivePage.SectionUpdates.CreateBtn": "アップデートを作成",
   "CollectivePage.SectionUpdates.Title": "What's new with {collectiveName}",
   "CollectivePage.SectionUpdates.ViewAll": "すべてのアップデートを見る",

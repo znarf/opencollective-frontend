@@ -52,8 +52,8 @@ const messages = defineMessages({
 });
 
 const getPaymentMethodsQuery = gqlV2`
-  query UpdatePaymentMethodPopUpQuery($collectiveSlug: String) {
-    account(slug: $collectiveSlug) {
+  query UpdatePaymentMethodPopUpQuery($slug: String) {
+    account(slug: $slug) {
       id
       paymentMethods(types: ["creditcard", "virtualcard", "prepaid"]) {
         id
@@ -117,7 +117,7 @@ const UpdatePaymentMethodPopUp = ({
   // GraphQL mutations and queries
   const { data } = useQuery(getPaymentMethodsQuery, {
     variables: {
-      collectiveSlug: router.query.collectiveSlug,
+      slug: router.query.slug,
     },
     context: API_V2_CONTEXT,
   });
@@ -283,7 +283,7 @@ const UpdatePaymentMethodPopUp = ({
                     refetchQueries: [
                       {
                         query: getPaymentMethodsQuery,
-                        variables: { collectiveSlug: router.query.collectiveSlug },
+                        variables: { slug: router.query.slug },
                         context: API_V2_CONTEXT,
                       },
                     ],

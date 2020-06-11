@@ -2,14 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
+import { Dimensions } from '../collective-page/_constants';
+import Container from '../Container';
 import { Flex } from '../Grid';
 
 import RecurringContributionsCard from './RecurringContributionsCard';
-
-const AllCardsContainer = styled(Flex).attrs({
-  flexWrap: 'wrap',
-  justifyContent: 'space-evenly',
-})``;
 
 const CollectiveCardContainer = styled.div`
   width: 280px;
@@ -42,25 +39,27 @@ const RecurringContributionsContainer = ({ recurringContributions, filter, creat
   }
 
   return (
-    <AllCardsContainer my={2}>
-      {displayedRecurringContributions.map(contribution => (
-        <CollectiveCardContainer key={`${contribution.id}-container`}>
-          <RecurringContributionsCard
-            key={contribution.id}
-            mx={3}
-            width={250}
-            height={360}
-            collective={contribution.toAccount}
-            status={contribution.status}
-            contribution={contribution}
-            style={{ position: 'relative' }}
-            createNotification={createNotification}
-            account={account}
-            data-cy="recurring-contribution-card"
-          />
-        </CollectiveCardContainer>
-      ))}
-    </AllCardsContainer>
+    <Container maxWidth={Dimensions.MAX_SECTION_WIDTH} pl={Dimensions.PADDING_X} mt={4} mx="auto">
+      <Flex flexWrap="wrap" justifyContent={['space-evenly', 'left']} my={2}>
+        {displayedRecurringContributions.map(contribution => (
+          <CollectiveCardContainer key={`${contribution.id}-container`}>
+            <RecurringContributionsCard
+              key={contribution.id}
+              mx={3}
+              width={250}
+              height={360}
+              collective={contribution.toAccount}
+              status={contribution.status}
+              contribution={contribution}
+              style={{ position: 'relative' }}
+              createNotification={createNotification}
+              account={account}
+              data-cy="recurring-contribution-card"
+            />
+          </CollectiveCardContainer>
+        ))}
+      </Flex>
+    </Container>
   );
 };
 

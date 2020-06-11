@@ -8,6 +8,7 @@ import { generateNotFoundError } from '../lib/errors';
 import { API_V2_CONTEXT, gqlV2 } from '../lib/graphql/helpers';
 
 import AuthenticatedPage from '../components/AuthenticatedPage';
+import CollectiveNavbar from '../components/CollectiveNavbar';
 import Container from '../components/Container';
 import ErrorPage from '../components/ErrorPage';
 import { Flex } from '../components/Grid';
@@ -28,8 +29,8 @@ const FilterTag = styled(StyledTag)`
 `;
 
 export const recurringContributionsPageQuery = gqlV2/* GraphQL */ `
-  query RecurringContributions($collectiveSlug: String) {
-    account(slug: $collectiveSlug) {
+  query RecurringContributions($slug: String) {
+    account(slug: $slug) {
       id
       slug
       name
@@ -75,12 +76,12 @@ export const recurringContributionsPageQuery = gqlV2/* GraphQL */ `
 `;
 
 class recurringContributionsPage extends React.Component {
-  static getInitialProps({ query: { collectiveSlug } }) {
-    return { collectiveSlug };
+  static getInitialProps({ query: { slug } }) {
+    return { slug };
   }
 
   static propTypes = {
-    collectiveSlug: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
     LoggedInUser: PropTypes.object,
     data: PropTypes.shape({
       loading: PropTypes.bool,
@@ -115,14 +116,14 @@ class recurringContributionsPage extends React.Component {
   };
 
   render() {
-    const { collectiveSlug, data, LoggedInUser } = this.props;
+    const { slug, data, LoggedInUser } = this.props;
     const { notification, notificationType, notificationText } = this.state;
 
     if (!data.loading) {
       if (!data || data.error) {
         return <ErrorPage data={data} />;
       } else if (!data.account) {
-        return <ErrorPage error={generateNotFoundError(collectiveSlug, true)} log={false} />;
+        return <ErrorPage error={generateNotFoundError(slug, true)} log={false} />;
       }
     }
 
@@ -166,7 +167,8 @@ class recurringContributionsPage extends React.Component {
                 {notificationType === 'error' && <P>{notificationText}</P>}
               </TemporaryNotification>
             )}
-            <Container py={[5, 6]} px={[3, 4]}>
+            <CollectiveNavbar collective={collective} onlyInfos={true} />
+            <Container py={[4, 5]} px={[3, 4]}>
               <H2 my={2} fontWeight="300">
                 <FormattedMessage
                   id="Subscriptions.Title"
