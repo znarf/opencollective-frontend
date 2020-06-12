@@ -178,6 +178,20 @@ class recurringContributionsPage extends React.Component {
                   }}
                 />
               </H2>
+            </Container>
+
+            <Container py={[5, 6]} px={[3, 4]}>
+              {2 !== 1 && (
+                <H2 my={2} fontWeight="300">
+                  <FormattedMessage
+                    id="Subscriptions.Title"
+                    defaultMessage="{collectiveName}'s recurring financial contributions"
+                    values={{
+                      collectiveName: collective.name,
+                    }}
+                  />
+                </H2>
+              )}
               <Flex my={3} flexWrap="wrap">
                 <FilterTag
                   type={this.state.filter === 'active' ? 'dark' : null}
