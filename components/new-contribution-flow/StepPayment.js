@@ -18,6 +18,7 @@ import { P } from '../../components/Text';
 import MessageBox from '../MessageBox';
 import MessageBoxGraphqlError from '../MessageBoxGraphqlError';
 
+import BlockedContributorMessage from './BlockedContributorMessage';
 import { generatePaymentMethodOptions, NEW_CREDIT_CARD_KEY } from './utils';
 
 const PaymentMethodBox = styled.div`
@@ -90,7 +91,7 @@ const StepPayment = ({
   const { loading, data, error } = useQuery(paymentMethodsQuery, {
     variables: { slug: stepProfile.slug },
     context: API_V2_CONTEXT,
-    skip: !stepProfile.id,
+    skip: !stepProfile.id || stepProfile.blocked,
     fetchPolicy: 'cache-and-network',
   });
 
@@ -117,7 +118,9 @@ const StepPayment = ({
 
   return (
     <Container width={1} border={['1px solid #DCDEE0', 'none']} borderRadius={15}>
-      {loading && !paymentMethods.length ? (
+      {stepProfile.blocked ? (
+        <BlockedContributorMessage categories={stepProfile.blocked} collective={collective} />
+      ) : loading && !paymentMethods.length ? (
         <Loading />
       ) : error ? (
         <MessageBoxGraphqlError error={error} />

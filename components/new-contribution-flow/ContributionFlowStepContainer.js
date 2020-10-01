@@ -49,6 +49,10 @@ class ContributionFlowStepContainer extends React.Component {
       },
       payment: { id: 'NewContributionFlow.ChoosePaymentMethod', defaultMessage: 'Choose your payment method' },
       summary: { id: 'Summary', defaultMessage: 'Summary' },
+      blockedContributor: {
+        id: 'NewContributionFlow.BlockedContributor.Header',
+        defaultMessage: 'Unable to contribute',
+      },
     });
   }
 
@@ -57,6 +61,8 @@ class ContributionFlowStepContainer extends React.Component {
       return this.props.mainState.stepDetails?.interval
         ? this.props.intl.formatMessage(this.headerMessages[`profile.guest.recurrent`])
         : this.props.intl.formatMessage(this.headerMessages[`profile.guest`]);
+    } else if (step === 'payment' && this.props.mainState.stepProfile.blocked) {
+      return this.props.intl.formatMessage(this.headerMessages.blockedContributor);
     } else if (this.headerMessages[step]) {
       return this.props.intl.formatMessage(this.headerMessages[step]);
     } else {

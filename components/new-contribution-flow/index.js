@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { graphql } from '@apollo/client/react/hoc';
-import { find, get, isNil, pick } from 'lodash';
+import { graphql, withApollo } from '@apollo/client/react/hoc';
+import { find, get, intersection, isEmpty, isNil, pick } from 'lodash';
 import memoizeOne from 'memoize-one';
 import { defineMessages, FormattedMessage, injectIntl } from 'react-intl';
 import styled from 'styled-components';
@@ -71,6 +71,17 @@ const stepsLabels = defineMessages({
   },
 });
 
+const accountCategoriesQuery = gqlV2/* GraphQL */ `
+  query ContributionFlowCategoriesAccountQuery($collectiveSlug: String!) {
+    account(slug: $collectiveSlug, throwIfMissing: false) {
+      id
+      legacyId
+      slug
+      categories
+    }
+  }
+`;
+
 class ContributionFlow extends React.Component {
   static propTypes = {
     collective: PropTypes.shape({
@@ -101,6 +112,7 @@ class ContributionFlow extends React.Component {
     /** @ignore from withUser */
     LoggedInUser: PropTypes.object,
     createCollective: PropTypes.func.isRequired, // from mutation
+    client: PropTypes.object,
   };
 
   constructor(props) {
@@ -282,6 +294,25 @@ class ContributionFlow extends React.Component {
       }
     }
 
+    // Check that the contributor is not blocked from contributing to the collective
+    const collectiveBlockedCategories = get(
+      this.props.collective,
+      'settings.moderation.rejectedContributionCategories',
+      [],
+    );
+    if (collectiveBlockedCategories) {
+      const { data } = await this.props.client.query({
+        query: accountCategoriesQuery,
+        variables: { collectiveSlug: stepProfile.slug },
+        context: API_V2_CONTEXT,
+      });
+      const contributorBlockedCategories = get(data, 'account.categories', []);
+      const containsBlockedCategories = intersection(collectiveBlockedCategories, contributorBlockedCategories);
+      if (!isEmpty(containsBlockedCategories)) {
+        this.setState({ stepProfile: { ...this.state.stepProfile, blocked: containsBlockedCategories } });
+      }
+    }
+
     return true;
   };
 
@@ -393,7 +424,7 @@ class ContributionFlow extends React.Component {
   /** Returns the steps list */
   getSteps() {
     const { fixedInterval, fixedAmount, intl, collective, host, tier } = this.props;
-    const { stepDetails, stepPayment, stepSummary } = this.state;
+    const { stepDetails, stepProfile, stepPayment, stepSummary } = this.state;
     const isFixedContribution = this.isFixedContribution(tier, fixedAmount, fixedInterval);
     const minAmount = this.getTierMinAmount(tier);
     const noPaymentRequired = minAmount === 0 && (isFixedContribution || stepDetails?.amount === 0);
@@ -433,7 +464,7 @@ class ContributionFlow extends React.Component {
       steps.push({
         name: 'payment',
         label: intl.formatMessage(stepsLabels.payment),
-        isCompleted: true,
+        isCompleted: stepProfile?.blocked ? false : true,
         validate: action => {
           if (action === 'prev') {
             return true;
@@ -508,6 +539,7 @@ class ContributionFlow extends React.Component {
   render() {
     const { collective, tier, LoggedInUser, loadingLoggedInUser, skipStepDetails } = this.props;
     const { error, isSubmitted, isSubmitting } = this.state;
+
     return (
       <Steps
         steps={this.getSteps()}
@@ -757,6 +789,8 @@ const addConfirmOrderMutation = graphql(
 
 export default injectIntl(
   withUser(
-    addSignupMutation(addConfirmOrderMutation(addCreateOrderMutation(addCreateCollectiveMutation(ContributionFlow)))),
+    withApollo(
+      addSignupMutation(addConfirmOrderMutation(addCreateOrderMutation(addCreateCollectiveMutation(ContributionFlow)))),
+    ),
   ),
 );
