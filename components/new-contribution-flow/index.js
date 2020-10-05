@@ -20,6 +20,7 @@ import { getDefaultTierAmount, getTierMinAmount, isFixedContribution } from '../
 import { objectToQueryString } from '../../lib/url_helpers';
 import { getWebsiteUrl, parseToBoolean } from '../../lib/utils';
 import { Router } from '../../server/pages';
+import { MODERATION_CATEGORIES_ALIASES } from '../../lib/constants/moderation-categories';
 
 import Container from '../../components/Container';
 import NewContributeFAQ from '../../components/faqs/NewContributeFAQ';
@@ -295,25 +296,37 @@ class ContributionFlow extends React.Component {
     }
 
     // Check that the contributor is not blocked from contributing to the collective
-    const collectiveBlockedCategories = get(
-      this.props.collective,
-      'settings.moderation.rejectedContributionCategories',
-      [],
-    );
-    if (collectiveBlockedCategories) {
-      const { data } = await this.props.client.query({
-        query: accountCategoriesQuery,
-        variables: { collectiveSlug: stepProfile.slug },
-        context: API_V2_CONTEXT,
-      });
-      const contributorBlockedCategories = get(data, 'account.categories', []);
-      const containsBlockedCategories = intersection(collectiveBlockedCategories, contributorBlockedCategories);
-      if (!isEmpty(containsBlockedCategories)) {
-        this.setState({ stepProfile: { ...this.state.stepProfile, blocked: containsBlockedCategories } });
-      }
+    const { data } = await this.props.client.query({
+      query: accountCategoriesQuery,
+      variables: { collectiveSlug: stepProfile.slug },
+      context: API_V2_CONTEXT,
+    });
+    // const containsBlockedCategories = this.getContributorRejectedCategories(stepProfile);
+    const containsBlockedCategories = this.getContributorRejectedCategories(data.account);
+    if (!isEmpty(containsBlockedCategories)) {
+      this.setState({ stepProfile: { ...this.state.stepProfile, blocked: containsBlockedCategories } });
     }
 
     return true;
+  };
+
+  getContributorRejectedCategories = account => {
+    const rejectedCategories = get(this.props.collective, 'settings.moderation.rejectedCategories', []);
+    const contributorCategories = get(account, 'categories', []);
+
+    if (rejectedCategories.length === 0 || contributorCategories.length === 0) {
+      return [];
+    }
+
+    console.log({ rejectedCategories, contributorCategories });
+
+    const contributorRejectedCategories = Object.keys(MODERATION_CATEGORIES_ALIASES).filter(key => {
+      return intersection(MODERATION_CATEGORIES_ALIASES[key], contributorCategories).length !== 0;
+    });
+
+    console.log(contributorRejectedCategories);
+
+    return contributorRejectedCategories;
   };
 
   createProfileForRecurringContributions = async data => {
