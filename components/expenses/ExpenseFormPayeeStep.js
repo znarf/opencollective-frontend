@@ -286,7 +286,7 @@ const ExpenseFormPayeeStep = ({
             </Fragment>
           )}
         </Box>
-        <Box flexGrow="1" flexBasis="50%" display={values.payee?.payoutMethods ? 'block' : 'none'}>
+        <Box flexGrow="1" flexBasis="50%" display={values.payee && allPayoutMethods ? 'block' : 'none'}>
           <Field name="payoutMethod">
             {({ field }) => (
               <StyledInputField
