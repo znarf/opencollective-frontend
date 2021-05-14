@@ -100,9 +100,10 @@ const TrixEditorContainer = styled.div`
         '.trix-button-group--file-tools': {
           display: 'none',
         },
-        '.trix-button-group--block-tools .trix-button:not(.trix-button--icon-number-list):not(.trix-button--icon-bullet-list)': {
-          display: 'none',
-        },
+        '.trix-button-group--block-tools .trix-button:not(.trix-button--icon-number-list):not(.trix-button--icon-bullet-list)':
+          {
+            display: 'none',
+          },
         '.trix-button--icon-bullet-list': {
           borderLeft: 'none',
         },
@@ -307,6 +308,8 @@ export default class RichTextEditor extends React.Component {
       });
       this.getEditor().insertAttachment(attachment);
       lastIndex = match.index + iframe.length;
+      const postText = value.substring(lastIndex, value.length);
+      this.getEditor().insertHTML(postText);
     }
   };
 

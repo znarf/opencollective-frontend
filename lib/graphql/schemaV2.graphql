@@ -231,6 +231,16 @@ interface Account {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 }
@@ -764,25 +774,18 @@ type Bot implements Account {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
-}
-
-input BraintreePaymentInput {
-  nonce: String!
-  type: BraintreePaymentInputType!
-  details: JSON
-  binData: JSON
-  deviceData: JSON
-  description: String
-  vaulted: Boolean
-}
-
-"""
-Type of account used to pay with Braintree
-"""
-enum BraintreePaymentInputType {
-  PayPalAccount
 }
 
 """
@@ -1027,6 +1030,16 @@ type Collective implements Account & AccountWithHost & AccountWithContributions 
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -1166,7 +1179,6 @@ type Comment {
   id: String
   createdAt: DateTime
   html: String
-  markdown: String @deprecated(reason: "2020-01-25: Use html")
   fromAccount: Account
   account: Account
 
@@ -1213,7 +1225,6 @@ input CommentReferenceInput {
 
 input CommentUpdateInput {
   id: String!
-  markdown: String
   html: String
 }
 
@@ -1318,7 +1329,6 @@ enum ConnectedAccountService {
   twitter
   transferwise
   privacy
-  braintree
   meetup @deprecated(reason: "Not using this service anymore")
 }
 
@@ -3213,6 +3223,16 @@ type Event implements Account & AccountWithHost & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -3688,6 +3708,11 @@ type ExpensePermissions {
   canEdit: Boolean!
 
   """
+  Tags permissions are a bit different, and can be edited by admins even if the expense has already been paid
+  """
+  canEditTags: Boolean!
+
+  """
   Whether the current user can edit the expense
   """
   canDelete: Boolean!
@@ -4135,6 +4160,16 @@ type Fund implements Account & AccountWithHost & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -4458,6 +4493,16 @@ type Host implements Account & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -5003,6 +5048,16 @@ type Individual implements Account {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
   firstName: String @deprecated(reason: "2020-10-12: Use the name field")
@@ -5832,6 +5887,26 @@ type Mutation {
     Account where the virtual card will be associated
     """
     account: AccountReferenceInput!
+
+    """
+    Individual account responsible for the card
+    """
+    assignee: AccountReferenceInput!
+  ): VirtualCard!
+
+  """
+  Edit existing Virtual Card information
+  """
+  editVirtualCard(
+    """
+    Virtual Card being edited its new values
+    """
+    virtualCard: VirtualCardUpdateInput!
+
+    """
+    The individual account reference to attach the Virtual Card to if desired
+    """
+    assignee: AccountReferenceInput
   ): VirtualCard!
 
   """
@@ -6358,6 +6433,16 @@ type Organization implements Account & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -6490,11 +6575,6 @@ input PaymentMethodInput {
   To pass when type is PAYPAL
   """
   paypalInfo: PaypalPaymentInput
-
-  """
-  To pass when type is BRAINTREE
-  """
-  braintreeInfo: BraintreePaymentInput
 }
 
 enum PaymentMethodLegacyType {
@@ -6503,7 +6583,6 @@ enum PaymentMethodLegacyType {
   PREPAID_BUDGET
   ACCOUNT_BALANCE
   PAYPAL
-  BRAINTREE_PAYPAL
   BANK_TRANSFER
   ADDED_FUNDS
 }
@@ -6517,7 +6596,6 @@ input PaymentMethodReferenceInput {
 
 enum PaymentMethodService {
   PAYPAL
-  BRAINTREE
   STRIPE
   OPENCOLLECTIVE
   PREPAID
@@ -6531,7 +6609,6 @@ enum PaymentMethodType {
   collective
   host
   adaptive
-  paypal
   giftcard
   manual
 }
@@ -6887,6 +6964,16 @@ type Project implements Account & AccountWithHost & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -7133,6 +7220,11 @@ type Query {
     dateFrom: ISODateTime
 
     """
+    Only return expenses that were created after this date
+    """
+    dateTo: ISODateTime
+
+    """
     The term to search
     """
     searchTerm: String
@@ -7227,6 +7319,11 @@ type Query {
     dateFrom: ISODateTime
 
     """
+    Only return orders that were created after this date
+    """
+    dateTo: ISODateTime
+
+    """
     The term to search
     """
     searchTerm: String
@@ -7299,7 +7396,7 @@ type Query {
     dateFrom: ISODateTime
 
     """
-    Only return expenses that were created after this date
+    Only return expenses that were created before this date
     """
     dateTo: ISODateTime
 
@@ -7357,18 +7454,6 @@ type Query {
     """
     tier: TierReferenceInput
   ): PaypalPlan!
-  thirdPartyApiClientToken(
-    """
-    The account that serves as a payment target
-    """
-    account: AccountReferenceInput!
-
-    """
-    The account that is contributing
-    """
-    fromAccount: AccountReferenceInput
-    service: ThirdPartyApiWithClientToken!
-  ): String!
   loggedInAccount: Account
 }
 
@@ -7396,13 +7481,6 @@ type TagStat {
   Number of entries for this tag
   """
   count: Int!
-}
-
-"""
-Third party APIs for which Open Collective API can generate tokens
-"""
-enum ThirdPartyApiWithClientToken {
-  BRAINTREE
 }
 
 """
@@ -7966,6 +8044,16 @@ type Vendor implements Account & AccountWithHost & AccountWithContributions {
     offset: Int = 0
     state: String = null
     merchantAccount: AccountReferenceInput = null
+
+    """
+    Only return expenses that were created after this date
+    """
+    dateFrom: ISODateTime = null
+
+    """
+    Only return expenses that were created before this date
+    """
+    dateTo: ISODateTime = null
   ): VirtualCardCollection!
   virtualCardMerchants(limit: Int = 100, offset: Int = 0): AccountCollection!
 
@@ -8045,6 +8133,7 @@ type VirtualCard {
   id: String
   account: Account
   host: Account
+  assignee: Individual
   name: String
   last4: String
   data: JSONObject
@@ -8073,4 +8162,9 @@ input VirtualCardInput {
 
 input VirtualCardReferenceInput {
   id: String
+}
+
+input VirtualCardUpdateInput {
+  id: String
+  privateData: JSONObject
 }
