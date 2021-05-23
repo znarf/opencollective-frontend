@@ -110,7 +110,7 @@ class CreateUpdatePage extends React.Component {
                 </Container>
               </Link>
             </BackButtonWrapper>
-            <Container width={1} maxWidth={650}>
+            <Container width={1} maxWidth={680}>
               {!isAdmin && (
                 <div className="login">
                   <p>
